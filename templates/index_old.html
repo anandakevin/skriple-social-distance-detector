@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Live Detection Web</title>
+    <script>
+        function onOpenCvReady() {
+            console.log('OpenCV.js is ready');
+        }
+
+        function onSocketIOReady() {
+            console.log('Socket.io is ready');
+        }
+
+        function onJQueryReady() {
+            console.log('JQuery is ready');
+        }
+
+        function checkScripts() {
+            alert('custom scripts are ready');
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <div class="inputoutput">
+            <img id="imageSrc" alt="No Image" />
+            <div class="caption">imageSrc <input type="file" id="fileInput" name="file" /></div>
+        </div>
+        <div class="inputoutput">
+            <canvas id="canvasOutput" ></canvas>
+            <div class="caption">canvasOutput</div>
+        </div>
+        <input type = "button" onclick = "sayHello()" value = "Say Hello" />
+        <h1>Live Detection</h1>
+        <img src="{{ url_for('video_feed') }}" width="900" height="auto">
+
+        <div>json object res: {{ json_obj }} </div>
+        <div id = 'inferenceRes1'>People at Risk: {{ num_of_people_at_risk }}</div>
+        <div id = 'inferenceRes2'>Number of groups: {{ num_of_groups }}</div>
+        <div id = 'inferenceRes3'>Number of crowd consisting of at least {{ min_crowd_count_qualifier }} people: {{ num_of_crowd }}</div>
+        <div id = 'inferenceRes4'>Max Number of crowd consisting of at least {{ min_crowd_count_qualifier }}: {{ max_crowd_count }}</div>
+    </div>
+    
+    <div id='log'></div>
+    
+    <script async src="{{ url_for('static', filename = 'js/opencv.js') }}" onload="onOpenCvReady();" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename = 'js/jquery-3.6.0.min.js') }}" onload="onJQueryReady();" type="text/javascript"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js" onload="onSocketIOReady();" integrity="sha384-DkkWv9oJFWLIydBXXjkBWnG1/fuVhw8YPBq37uvvD6WSYRFRqr21eY5Dg9ZhmWdy" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+        namespace = '/detect';
+        var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+        var count = 0;
+
+        // let imgElement = document.getElementById('imageSrc');
+        // let inputElement = document.getElementById('fileInput');
+        // inputElement.addEventListener('change', (e) => {
+        //     imgElement.src = URL.createObjectURL(e.target.files[0]);
+        // }, false);
+        // imgElement.onload = function() {
+        //     let mat = cv.imread(imgElement);
+        //     cv.imshow('canvasOutput', mat);
+        //     mat.delete();
+        // };
+
+        function executeQuery() {
+            $.ajax({
+                url: '/inference_result',
+                success: function(data) {
+                    console.log(data);
+                    updateInferenceData(data);
+                }
+            });
+            // updateCall();
+        }
+
+        $(document).ready(function() {
+            executeQuery();
+        });
+
+        function updateCall(){
+            setTimeout(function(){executeQuery()}, 10);
+        }
+
+        socket.on('connect', function() {
+            socket.emit('my_event', {data: 'connected to the SocketServer...'});
+            console.log('connected to SocketServer');
+        });
+        
+        socket.on('my_response', function(msg, cb) {
+            $('#log').append('<br>' + $('<div/>').text('logs #' + msg.count + ': ' + msg.data).html());
+            if (cb)
+                cb();
+        });
+
+        // this is a callback that triggers when the "my response" event is emitted by the server.
+        socket.on('update_inference', function(data) {
+            data = JSON.parse(data);
+            $('#log').append('<p>Received: ' + data.data + '</p>');
+            console.log("received data: " + data.data);
+
+            updateInferenceData(data.data);
+        });
+
+        function updateInferenceData(inferenceRes){
+            // inferenceRes = JSON.parse(inferenceRes);
+            count += 1;
+            console.log('inference ke: ' + count);
+            console.log('InferenceRes: ' + inferenceRes);
+            $('#inferenceRes1').html('People at Risk: <strong>'+ inferenceRes.num_of_people_at_risk + ' </strong>');
+            console.log('result: ' + $('#inferenceRes1').text());
+            $('#inferenceRes2').html('Number of groups: <strong>'+ inferenceRes.num_of_groups + ' </strong>');
+            console.log('result: ' + $('#inferenceRes2').text());
+            $('#inferenceRes3').html('Number of crowd consisting of at least <strong>'+ inferenceRes.min_crowd_count_qualifier +'</strong> people: <strong>' + inferenceRes.num_of_crowd + '</strong>');
+            console.log('result: ' + $('#inferenceRes3').text());
+            $('#inferenceRes4').html('Max Number of crowd consisting of at least <strong>'+ inferenceRes.min_crowd_count_qualifier + '</strong>: <strong>'+ inferenceRes.max_crowd_count + ' </strong>');
+            console.log('result: ' + $('#inferenceRes4' ).text());
+        }
+
+    </script>
+    <!-- static is used for css/js files -->
+
+</body>
+</html>

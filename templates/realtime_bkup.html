@@ -1,0 +1,191 @@
+<!DOCTYPE HTML>
+<!--
+	Eventually by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Realtime Camera Detector</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="/static/assets/css/main.css" />
+		<!-- <link rel="stylesheet" href="{{ url_for('static', filename = 'assets/css/main.css') }}" /> -->
+		<style>
+			.btnStart{
+				width:228px;
+				height:auto;
+				margin-top: 10px;
+				font-size:20px;
+			}
+			.stop{
+				background: maroon;
+			}
+		</style>
+	</head>
+	<body class="is-preload" >
+		<div id="container" style="display: flex;">
+		<!-- Header -->
+			<header id="header">
+				
+				<h1>Realtime Camera Detector</h1>
+				<br>
+				Source: 
+				<select id="sourcevid" style="width:100%;">
+					<option value="0">Realtime Source</option>
+					<option value="3">Video Capture Device (Webcam)</option>
+				</select>
+				<button id="btnStartStop" class="btnStart">Start Inference</button>
+			</header>
+
+			<img id="detection" style="margin-left:100px" width="1400" height="auto"/>
+
+		</div>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<ul class="copyright">
+					<li>&copy; 2021 - Physical Distancing Detector</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</footer>
+
+		<!-- Scripts -->
+			<!-- <script src="{{ url_for('static', filename = 'assets/js/main.js') }}"></script> -->
+			<script>
+				function onOpenCvReady() {
+					console.log('OpenCV.js is ready');
+				}
+		
+				function onSocketIOReady() {
+					console.log('Socket.io is ready');
+				}
+		
+				function onJQueryReady() {
+					console.log('JQuery is ready');
+				}
+		
+				function checkScripts() {
+					console.log('custom scripts are ready');
+				}
+			</script>
+			<script src="/static/assets/js/main.js"></script>
+			<script async src="{{ url_for('static', filename = 'js/opencv.js') }}" onload="onOpenCvReady();" type="text/javascript"></script>
+			<script src="{{ url_for('static', filename = 'js/jquery-3.6.0.min.js') }}" onload="onJQueryReady();" type="text/javascript"></script>
+			<script src="https://cdn.socket.io/4.0.0/socket.io.min.js" onload="onSocketIOReady();" integrity="sha384-DkkWv9oJFWLIydBXXjkBWnG1/fuVhw8YPBq37uvvD6WSYRFRqr21eY5Dg9ZhmWdy" crossorigin="anonymous"></script>
+			<script>
+				/*
+					1. Source Video belom kelar milih video (INGET YA CUK) >> oiyalupa
+					2. BUTTON INFERENCE RUNNING -> belom keupdate kalo inference dah kelar!!1!1!11 >> Ini karena ketahan
+					3. REFRESH BUGGY COY >> yagemana ya
+					4. BELOM ADA BUTTON REFRESH: Untuk ngehit getcurrentinference >> kan auto
+					5. Angkanya aja blm muncul >> hehe
+				*/
+				namespace = '/detect';
+				var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+				var cuk;
+				function checkStartup(){
+					console.log("Checking startup");
+					$.ajax({
+						url: '/detect/get_inference_status',
+						type : "GET",
+						success: function(data) {
+							console.log("MASUK SUKSES - " + data);
+							cuk = data;
+							if(cuk == 'True'){
+								console.log("cuk lagi jalan cuk");
+								resetStopInference();
+							}else{
+								console.log("GAK CUK TERNYATA");
+								resetStartInference();
+							}
+						}
+					});
+				}
+
+				function resetStopInference() {
+					$('#btnStartStop').addClass('disabled');
+					$('#btnStartStop').text('Inference is running');
+					$("#detection").attr('src',"{{ url_for('video_feed') }}");
+				}
+
+				function resetStartInference() {
+					$('#btnStartStop').text('Start Inference');
+					if($('#btnStartStop').hasClass('disabled')){
+						$('#btnStartStop').removeClass('disabled');
+					}
+					$("#detection").attr('src',"");
+				}
+
+				$(function() {
+					console.log( "ready!" );
+					checkStartup();
+
+					socket.on('inference_status', function() {
+						// socket.emit('my_event', {data: 'connected to the SocketServer...'});
+						console.log('inference finished!');
+						resetStartInference();
+					});
+				});
+				
+
+				function startstopinference(){
+					if($("#btnStartStop").hasClass("disabled")){
+						
+						$.ajax({
+							url: '/detect/stop_inference',
+							type : "GET",
+							success: function(data) {
+								console.log(data);
+								updateInferenceData(data);
+								$('#btnStartStop').text('Start Inference');
+								$('#btnStartStop').removeClass("disabled");
+								$("#detection").attr('src',"");
+							}
+						});
+					}else{
+						
+						var index = $('#sourceOption :selected').text();
+
+						$.ajax({
+							url: '/detect/start_inference/' + index,
+							type : "GET",
+							success: function(data) {
+								console.log(data);
+								updateInferenceData(data);
+								$('#btnStartStop').addClass("disabled");
+								$('#btnStartStop').text('Inference is Running');
+								// location.reload();
+
+								setTimeout(() => {  location.reload(); }, 500);
+								
+							}
+						});
+					}
+				}
+
+				$('#btnStartStop').click(function(event) {
+					event.preventDefault();
+					return startstopinference();
+				})
+
+				var count = 0;
+				function updateInferenceData(inferenceRes){
+					// inferenceRes = JSON.parse(inferenceRes);
+					//inferenceRes.min_crowd_count_qualifier
+					count += 1;
+					console.log('inference ke: ' + count);
+					console.log('InferenceRes: ' + inferenceRes);
+					$('#textAI1').text(inferenceRes.num_of_people_at_risk);
+					console.log('result: ' + $('#textAI1').text());
+					$('#textAI2').text(inferenceRes.num_of_groups);
+					console.log('result: ' + $('#textAI2').text());
+					$('#textAI3').text(inferenceRes.num_of_crowd);
+					console.log('result: ' + $('#textAI3').text());
+					$('#textAI4').text(inferenceRes.max_crowd_count);
+					console.log('result: ' + $('#textAI4').text());
+				}
+			</script>
+
+	</body>
+</html>

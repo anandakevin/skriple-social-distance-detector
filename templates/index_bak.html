@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Hello OpenCV.js</title>
+</head>
+<body>
+<h2>Hello OpenCV.js</h2>
+<p id="status">OpenCV.js is loading...</p>
+<div>
+  <div class="inputoutput">
+    <img id="imageSrc" alt="No Image" />
+    <div class="caption">imageSrc <input type="file" id="fileInput" name="file" /></div>
+  </div>
+  <div class="inputoutput">
+    <canvas id="canvasOutput" ></canvas>
+    <div class="caption">canvasOutput</div>
+  </div>
+  <h1>Pi Video Surveillance</h1>
+    <img src="{{ url_for('video_feed') }}">
+    <div>People at Risk: {{ num_of_people_at_risk }}</div>
+    <div>Number of groups: {{ num_of_groups }}</div>
+    <div>Number of crowd consisting of at least {{ min_crowd_count_qualifier }} people: {{ num_of_crowd }}</div>
+    <div>Max Number of crowd consisting of at least {{ min_crowd_count_qualifier }}: {{ max_crowd_count }}</div>
+    <!-- <div>People at Risk: {{ num_of_people_at_risk }}</div>
+    <div>Number of groups: {{ num_of_groups }}</div>
+    <div>Number of crowd consisting of at least {{ min_crowd_count_qualifier }} people: {{ num_of_crowd }}</div>
+    <div>Max Number of crowd consisting of at least {{ min_crowd_count_qualifier }}: {{ max_crowd_count }}</div> -->
+</div>
+<script type="text/javascript">
+  let imgElement = document.getElementById('imageSrc');
+  let inputElement = document.getElementById('fileInput');
+  inputElement.addEventListener('change', (e) => {
+    imgElement.src = URL.createObjectURL(e.target.files[0]);
+  }, false);
+  imgElement.onload = function() {
+    let mat = cv.imread(imgElement);
+    cv.imshow('canvasOutput', mat);
+    mat.delete();
+  };
+  function onOpenCvReady() {
+    document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+  }
+</script>
+<script async src="js/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+</body>
+</html>

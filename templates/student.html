@@ -1,0 +1,135 @@
+<html>
+   <body>
+
+      <h1>Login</h1>
+
+      {% if error %}
+         <p><strong>Error:</strong> {{ error }}
+      {% endif %}
+      
+      <form action = "/login" method = "POST">
+         <dl>
+            <dt>Username:</dt>
+            <dd>
+               <input type = text name = username 
+                  value = "{{request.form.username }}">
+            </dd>
+            <dt>Password:</dt>
+            <dd><input type = password name = password></dd>
+         </dl>
+         <p><input type = submit value = Login></p>
+      </form>
+
+      {% with messages = get_flashed_messages() %}
+         {% if messages %}
+            <ul>
+               {% for message in messages %}
+               <li>{{ message }}</li>
+               {% endfor %}
+            </ul>
+            <p>Do you want to <a href = "{{ url_for('login') }}">
+            <b>log in?</b></a></p>
+         {% endif %}
+      {% endwith %}
+
+      <form action = "/uploader" method = "POST" 
+         enctype = "multipart/form-data">
+         <input type = "file" name = "file" />
+         <input type = "submit"/>
+      </form>
+		
+      <form action = "http://127.0.0.1:8000/result" method = "POST">
+      <!-- <form action = "/result" method = "POST"> -->
+         <p>Name <input type = "text" name = "Name" /></p>
+         <p>Physics <input type = "text" name = "Physics" /></p>
+         <p>Chemistry <input type = "text" name = "chemistry" /></p>
+         <p>Maths <input type ="text" name = "Mathematics" /></p>
+         <p><input type = "submit" value = "submit" /></p>
+      </form>
+
+      <form action = "{{ url_for('addrec') }}" method = "POST">
+         <h3>Student Information</h3>
+         Name<br>
+         <input type = "text" name = "nm" /></br>
+         
+         Address<br>
+         <textarea name = "add" ></textarea><br>
+         
+         City<br>
+         <input type = "text" name = "city" /><br>
+         
+         PINCODE<br>
+         <input type = "text" name = "pin" /><br>
+         <input type = "submit" value = "submit" /><br>
+      </form>
+
+      {% if rows %}
+      <table border = 1>
+         <thead>
+            <td>Name</td>
+            <td>Address>/td<
+            <td>city</td>
+            <td>Pincode</td>
+         </thead>
+         
+         
+         {% for row in rows %}
+            <tr>
+               <td>{{row["name"]}}</td>
+               <td>{{row["addr"]}}</td>
+               <td> {{row["city"]}}</td>
+               <td>{{row['pin']}}</td>	
+            </tr>
+         {% endfor %}
+      </table>
+      {% endif %}
+
+      <form action = "{{ request.path }}" method = "post">
+         <label for = "name">Name</label><br>
+         <input type = "text" name = "name" placeholder = "Name" /><br>
+         <label for = "email">City</label><br>
+         <input type = "text" name = "city" placeholder = "city" /><br>
+         <label for = "addr">addr</label><br>
+         <textarea name = "addr" placeholder = "addr"></textarea><br>
+         <label for = "PIN">City</label><br>
+         <input type = "text" name = "pin" placeholder = "pin" /><br>
+         <input type = "submit" value = "Submit" />
+      </form>
+
+      {% if students %}
+      <table>
+         <thead>
+            <tr>
+               <th>Name</th>
+               <th>City</th>
+               <th>Address</th>
+               <th>Pin</th>
+            </tr>
+         </thead>
+
+         <tbody>
+            {% for student in students %}
+               <tr>
+                  <td>{{ student.name }}</td>
+                  <td>{{ student.city }}</td>
+                  <td>{{ student.addr }}</td>
+                  <td>{{ student.pin }}</td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+      {% endif %}
+      
+      <a href = "/">Go back to home page</a>
+
+      <form action = "/setcookie" method = "POST">
+         <p><h3>Enter userID</h3></p>
+         <p><input type = 'text' name = 'nm'/></p>
+         <p><input type = 'submit' value = 'Login'/></p>
+      </form>
+
+      <!-- <div>You are not logged in </div>
+      <br>
+      <a href = '/login'></b>click here to log in</b></a> -->
+   </body>
+</html>

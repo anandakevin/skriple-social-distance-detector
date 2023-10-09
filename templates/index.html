@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Under the CCA 3.0 license (html5up.net/license)
+
+	Edited By: Ricardo Gunawan P.
+	Supervised By: Ananda Kevin S.
+
+	PHYSICAL DISTANCING DETECTOR WEB UI FRONTEND
+-->
+<html>
+	<head>
+		<title>Physical Distancing Detector</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="/static/assets_home/css/main.css" />
+		<!-- <link rel="stylesheet" href="{{ url_for('static', filename = 'assets_home/css/main.css') }}" /> -->
+		<noscript><link rel="stylesheet" href="/static/assets_home/css/noscript.css" /></noscript>
+		<!-- <noscript><link rel="stylesheet" href="{{ url_for('static', filename = 'assets_home/css/noscript.css') }}" /></noscript> -->
+		<style>
+			body{
+				height: 100vh;
+			}
+		</style>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Intro -->
+					<div id="intro" style="min-height:75vh;">
+						<h1 style="font-size: 80px;">REALTIME PHYSICAL<br />
+						DISTANCING DETECTOR</h1>
+						<p>By Ananda Kevin & Ricardo Gunawan
+							<br>BINUSIAN 2021 - PPTI BCA 5
+						</p>
+						<a href="/detect/cam"><button class="button primary" style="width:450px;font-size:25px;">Realtime CCTV Detection</button></a>
+						<a href="/detect/video"><button class="button primary" style="width:450px;font-size:25px;margin-top:10px;" >Choose Source File</button></a>
+					</div>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; 2021 Ricardo Gunawan & Ananda Kevin</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="{{ url_for('static', filename = 'assets_home/js/jquery.min.js') }}"></script>
+			<script src="{{ url_for('static', filename = 'assets_home/js/jquery.scrollex.min.js') }}"></script>
+			<script src="{{ url_for('static', filename = 'assets_home/js/jquery.scrolly.min.js') }}"></script>
+			<script src="{{ url_for('static', filename = 'assets_home/js/browser.min.js') }}"></script>
+			<script src="{{ url_for('static', filename = 'assets_home/js/breakpoints.min.js') }}"></script>
+			<script src="{{ url_for('static', filename = 'assets_home/js/util.js') }}"></script>
+			<script src="{{ url_for('static', filename = 'assets_home/js/main.js') }}"></script>
+			<!-- <script src="assets_home/js/jquery.min.js"></script>
+			<script src="assets_home/js/jquery.scrollex.min.js"></script>
+			<script src="assets_home/js/jquery.scrolly.min.js"></script>
+			<script src="assets_home/js/browser.min.js"></script>
+			<script src="assets_home/js/breakpoints.min.js"></script>
+			<script src="assets_home/js/util.js"></script>
+			<script src="assets_home/js/main.js"></script> -->
+
+	</body>
+</html>

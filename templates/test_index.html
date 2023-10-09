@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Test AJAX</title>
+        <script>
+            function onOpenCvReady() {
+                console.log('OpenCV.js is ready');
+            }
+    
+            function onSocketIOReady() {
+                console.log('Socket.io is ready');
+            }
+    
+            function onJQueryReady() {
+                console.log('JQuery is ready');
+            }
+    
+            function checkScripts() {
+                alert('custom scripts are ready');
+            }
+        </script>
+        <script src="{{ url_for('static', filename = 'js/jquery-3.6.0.min.js') }}" onload="onJQueryReady();" type="text/javascript"></script>
+    </head>
+    <body>
+        <!-- <form action = "{{ request.path }}" method = "post"> -->
+        <form id = "iniform">
+            <label for = "name">Name</label><br>
+            <input type = "text" name = "nama" placeholder = "Name" /><br>
+            <input type = "text" name = "panggilan" placeholder = "alias deh" /><br>
+            <input type = "submit" name = "submit cuy" id="submit2" placeholder = "submit ah" /><br>
+            <button type="submit" id="submit">
+                Save
+            </button>
+        </form>
+        <div id="tempat_nama">bepore</div>
+        <script type = "text/javascript">
+            function saveData() {
+                $.ajax({
+                    url: '/test_submit',
+                    type: 'POST',
+                    data: $('#iniform').serialize(),
+                    success: function(data) {
+                        console.log(data);
+                        $('#tempat_nama').html(data);
+                    }
+                });
+                return false;
+            }
+
+            $('#submit2').click(function() {
+                return saveData();
+            })
+
+            $('#submit').click(function() {
+                return saveData();
+            })
+
+            // onclick="return saveData()"
+        </script>
+    </body>
+</html>

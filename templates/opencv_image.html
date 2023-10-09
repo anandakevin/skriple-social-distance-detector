@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>OpenCV live camera</title>
+</head>
+
+<body>
+<h2>Image Read and Show Example</h2>
+<p id="status">OpenCV.js is loading...</p>
+<div>
+    <div class="inputoutput">
+        <!-- <img id = "imageSrc" alt="No Image"> -->
+        <canvas id = "canvasInput"></canvas>
+        <div class = "caption">canvasInput</div>
+        <input type = "file" id = "fileInput" name = "file" accept="image/*"/>
+    </div>
+    <div class="inputoutput">
+        <canvas id = "canvasOutput"></canvas>
+        <div class = "caption">canvasOutput</div>
+    </div>
+</div>
+<script async src="js/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+<script type = "text/javascript">
+
+    let imgElement = document.getElementById('imageSrc');
+    let canvasInput = document.getElementById('canvasInput');
+    let canvasOutput = document.getElementById('canvasInput');
+    let contextCanvasOutput = canvasOutput.getContext('2d');
+	var contextCanvasInput = canvasInput.getContext("2d"); 
+	var fileInput = document.getElementById('fileInput'); // input file
+	
+    fileInput.addEventListener('change', (e) => {
+        
+        // var reader = new FileReader();
+        // reader.readAsDataURL(e.target.files[0]);
+        // reader.onload = function(e) {
+        //     var img = new Image();
+        //     // img.src = e.target.result;
+            
+        //     img.onload = function(e) {
+        //         // let mat = cv.imread(img);
+        //         // cv.imshow('canvasInput', mat);
+        //         // cv.imshow('canvasOutput', mat);
+        //         // mat.delete();    
+
+        //         // or
+        //         canvasInput.width = img.width;
+        //         canvasInput.height = img.height;
+        //         contextCanvasInput.drawImage(img, 0, 0);
+        //     }
+        
+        // }
+
+        // or
+        var img1 = new Image();
+        img1.src = URL.createObjectURL(e.target.files[0]);
+        img1.onload = function(e) {
+            // const blue = new cv.Vec(255, 0, 0);
+            // const green = new cv.Vec(0, 255, 0);
+            // const red = new cv.Vec(0, 0, 255);
+
+            let mat = cv.imread(img1);
+            // let mat = cv.imread("rtsp://:8554/realtime.mp4");
+            // let mat = cv.Mat("rtsp://:8554/realtime.mp4");
+            let txt = "giru";
+            // mat.putText(txt, new cv.Point(0, 0), cv.FONT_ITALIC, 2, {color: (255, 0, 0), thickness: 2});
+            cv.imshow('canvasInput', mat);
+            let src = mat;
+            cv.cvtColor(src, mat, cv.COLOR_RGBA2GRAY);
+            
+
+            // result.putText(
+            //     String(numFingersUp),
+            //     new cv.Point(20, 60),
+            //     cv.FONT_ITALIC,
+            //     fontScale,
+            //     { color: green, thickness: 2 }
+            // );
+
+            cv.imshow('canvasOutput', src);
+            // mat.delete();
+            src.delete();
+
+            // or
+            // canvasInput.width = img1.width;
+            // canvasInput.height = img1.height;
+            // contextCanvasInput.drawImage(img1, 0, 0);
+        }
+
+        
+    }, false);
+
+    // function grabFrames (videoFile: any, delay: number, onFrame: (frame: cv.Mat) => void): void {
+    //     const cap = new cv.VideoCapture(videoFile);
+    //     let done = false;
+    //     const intvl = setInterval(() => {
+    //         let frame = cap.read();
+    //         // loop back to start on end of stream reached
+    //         if (frame.empty) {
+    //         cap.reset();
+    //         frame = cap.read();
+    //         }
+    //         onFrame(frame);
+
+    //         const key = cv.waitKey(delay);
+    //         done = key !== -1 && key !== 255;
+    //         if (done) {
+    //         clearInterval(intvl);
+    //         console.log('Key pressed, exiting.');
+    //         }
+    //     }, 0);
+    // };
+
+    function onOpenCvReady() {
+        document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+    }
+
+</script>
+</body>
+</html>

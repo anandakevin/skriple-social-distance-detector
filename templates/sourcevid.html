@@ -1,0 +1,225 @@
+<!DOCTYPE HTML>
+<!--
+	Eventually by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Realtime Video Detector</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="/static/assets/css/main.css" />
+		<style>
+			.btnStart{
+				width:228px;
+				height:auto;
+				margin-top: 10px;
+				font-size:20px;
+			}
+			.stop{
+				background: maroon;
+			}
+		</style>
+	</head>
+	<body class="is-preload" >
+
+		<div id="container" style="display: flex;">
+		<!-- Header -->
+		
+			<header id="header">
+				<h1>Realtime Video Detector</h1>
+				<br>
+				Choose Source Video File: <br>
+				<form id="videoForm" enctype="multipart/form-data">
+					<input type="file" name="video_path" id="video_path" class="button" accept=".avi,.mp4" style="width:100%;background:rgba(0, 0, 0, 0.2);">
+					<br>
+					Current video on inference: <br>
+					<input type = "text" name = "video_name" id="video_name" placeholder = "Video Name" disabled /><br>
+					
+					<div style="display:flex">
+						<button type = "submit" id="btnStartStop" class="btnStart">Start Inference</button>
+					</div>
+				</form>
+				
+			</header>
+
+			<img id="detection"  style="margin-left:100px" width="1200" height="auto"/>
+		
+		</div>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<ul class="copyright">
+					<li>&copy; 2021 - Physical Distancing Detector</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</footer>
+
+		<!-- Scripts -->
+			<!-- <script src="{{ url_for('static', filename = 'assets/js/main.js') }}"></script> -->
+			<script type = "text/javascript">
+				function onOpenCvReady() {
+					console.log('OpenCV.js is ready');
+				}
+	
+				function onSocketIOReady() {
+					console.log('Socket.io is ready');
+				}
+	
+				function onJQueryReady() {
+					console.log('JQuery is ready');
+				}
+	
+				function checkScripts() {
+					console.log('custom scripts are ready');
+				}
+			</script>
+			<script src="/static/assets/js/main.js"></script>
+			<script async src="{{ url_for('static', filename = 'js/opencv.js') }}" onload="onOpenCvReady();" type="text/javascript"></script>
+			<script src="{{ url_for('static', filename = 'js/jquery-3.6.0.min.js') }}" onload="onJQueryReady();" type="text/javascript"></script>
+			<script src="https://cdn.socket.io/4.0.0/socket.io.min.js" onload="onSocketIOReady();" integrity="sha384-DkkWv9oJFWLIydBXXjkBWnG1/fuVhw8YPBq37uvvD6WSYRFRqr21eY5Dg9ZhmWdy" crossorigin="anonymous"></script>
+			<script>
+
+				namespace = '/detect';
+				var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+				var cuk;
+				function checkStartup(){
+					console.log("Checking startup");
+					$.ajax({
+						url: '/detect/get_inference_status',
+						type : "GET",
+						success: function(data) {
+							console.log("MASUK SUKSES - " + data);
+							cuk = data;
+							if(cuk == 'True') {
+								console.log("cuk lagi jalan cuk");
+								// $('#btnStartStop').addClass('disabled');
+								// $('#btnStartStop').text('Inference is running');
+								// getVideoPathFromServer();
+								// $("#detection").attr('src',"{{ url_for('video_feed') }}");
+								resetStopInference();
+							} else {
+								console.log("GAK CUK TERNYATA");
+								// $('#btnStartStop').text('Start Inference');
+								// $('#video_name').val('Video not yet selected');
+								// if($('#btnStartStop').hasClass('disabled')){
+								// 	$('#btnStartStop').removeClass('disabled');
+								// }
+								// $("#detection").attr('src',"");
+								resetStartInference();
+							}
+						}
+					});
+
+				}
+
+				function resetStopInference() {
+					$('#btnStartStop').addClass('disabled');
+					$('#video_path').prop('disabled', true);
+					$('#btnStartStop').text('Inference is running');
+					getVideoPathFromServer();
+					$("#detection").attr('src',"{{ url_for('video_feed') }}");
+				}
+
+				function resetStartInference() {
+					$('#btnStartStop').text('Start Inference');
+					$('#video_name').val('Inference has not been started');
+					if($('#btnStartStop').hasClass('disabled')){
+						$('#btnStartStop').removeClass('disabled');
+					}
+					$('#video_path').prop('disabled', false);
+					$("#detection").attr('src',"");
+				}
+
+				function getVideoPathFromServer() {
+					$.ajax({
+						url: '/detect/get_source_video',
+						type : "GET",
+						success: function(data) {
+							data = data.split('\\');
+							$('#video_name').val(data[data.length - 1]);
+						}
+					});
+				}
+
+				$(function() {
+					console.log( "ready!" );
+					checkStartup();
+
+					socket.on('finish_inference', function() {
+						// socket.emit('my_event', {data: 'connected to the SocketServer...'});
+						console.log('inference finished!');
+						resetStartInference();
+					});
+				});
+				
+
+				function startstopinference(){
+					if($("#btnStartStop").hasClass("disabled")){
+						$.ajax({
+							url: '/detect/stop_inference',
+							type : "GET",
+							success: function(data) {
+								console.log(data);
+								updateInferenceData(data);
+								$('#btnStartStop').text('Start Inference');
+								$('#btnStartStop').removeClass("disabled");
+								$("#detection").attr('src',"");
+							}
+						});
+					} else {
+						var form = new FormData($("#header form")[0]);
+
+						// for (var value of form.values()) {
+						// 	console.log(value);
+						// 	alert('fdata: ' + value);
+						// }
+						
+						// for (var key of form.keys()) {
+						// 	console.log(key);
+						// 	alert('fdata: ' + key);
+						// }
+
+						$.ajax({
+							url: '/detect/start_inference',
+							type : 'POST',
+							data: form,
+							contentType: false,
+							cache: false,
+							processData: false,
+							success: function(data) {
+								updateInferenceData(data);
+								$('#btnStartStop').addClass("disabled");
+								$('#btnStartStop').text('Inference is Running');
+								setTimeout(() => {  location.reload(); }, 350);
+							}
+						});
+						return false;
+					}
+				}
+
+				$('#btnStartStop').click(function(event) {
+					event.preventDefault();
+					return startstopinference();
+				})
+
+				var count = 0;
+				
+				function updateInferenceData(inferenceRes){
+					count += 1;
+					console.log('inference ke: ' + count);
+					console.log('InferenceRes: ' + inferenceRes);
+					$('#textAI1').text(inferenceRes.num_of_people_at_risk);
+					console.log('result: ' + $('#textAI1').text());
+					$('#textAI2').text(inferenceRes.num_of_groups);
+					console.log('result: ' + $('#textAI2').text());
+					$('#textAI3').text(inferenceRes.num_of_crowd);
+					console.log('result: ' + $('#textAI3').text());
+					$('#textAI4').text(inferenceRes.max_crowd_count);
+					console.log('result: ' + $('#textAI4').text());
+				}
+
+			</script>
+	</body>
+</html>
