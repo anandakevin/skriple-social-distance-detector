@@ -1,5 +1,4 @@
 from flask.helpers import make_response
-import social_distance_detector as sdd
 from FileVideoStream import FileVideoStream
 from flask import Response, render_template, session, copy_current_request_context
 from flask import Flask, url_for, redirect, request
@@ -9,10 +8,17 @@ import argparse
 import time
 import cv2
 import os
-import darknet
+import sys
+# import darknet
 import json
 import time
 import socketio
+
+# Add the root directory to sys.path
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(root_dir)
+
+from modules import social_distance_detector as sdd
 
 # initialize a flask object
 app = Flask(__name__)
@@ -34,6 +40,7 @@ outputFrame = None
 current_page = None
 videoPath = None
 outputPath = "./Output/video_output.mp4"
+template_path = "./templates/"
 
 on_inference = False
 video_process = False
@@ -53,7 +60,7 @@ def index_page():
 	current_page = "index"
 	print('not in if, on inference status:', on_inference)
 	# return the rendered template
-	return render_template(current_page + ".html", sync_mode = socketio.async_mode)
+	return render_template(template_path + current_page + ".html", sync_mode = socketio.async_mode)
 
 # return page to detect from cam
 @app.route("/detect/cam")
@@ -67,7 +74,7 @@ def cam_detection_page():
 		t.daemon = True
 		t.start()
 	# return render_template(current_page + ".html", sync_mode = socketio.async_mode)
-	return render_template("realtime.html", sync_mode = socketio.async_mode)
+	return render_template(template_path + "realtime.html", sync_mode = socketio.async_mode)
 
 # return page to detect from video
 @app.route("/detect/video", methods = ['POST', 'GET'])
@@ -81,7 +88,7 @@ def video_detection_page():
 		t.daemon = True
 		t.start()
 	# return render_template(current_page + ".html", sync_mode = socketio.async_mode)
-	return render_template("sourcevid.html", sync_mode = socketio.async_mode)
+	return render_template(template_path + "sourcevid.html", sync_mode = socketio.async_mode)
 
 num_of_requests = 0
 # starts inference process

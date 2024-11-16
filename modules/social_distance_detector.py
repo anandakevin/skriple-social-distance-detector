@@ -6,7 +6,7 @@ import cv2
 import sys
 import numpy as np
 import time
-import darknet
+# import darknet
 from itertools import combinations
 
 max_number_of_crowd_count = 0
