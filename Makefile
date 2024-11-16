@@ -34,6 +34,7 @@ darknet:
 darknet:
 	darknet detector map Dataset\Crowdhuman\yolo_crowdhuman.data cfg\yolov4-tiny-custom-crowdhuman-1.cfg trained\yolov4_tiny\Training_1_[30_03_2021]\yolov4-tiny-custom-crowdhuman-1_last.weights > yolov4-tiny-custom-crowdhuman-1_last_mAP50.txt
 
+<<<<<<< HEAD
 # Variables
 DATA_DIR := data
 TRAIN_DIR := $(DATA_DIR)/train
@@ -57,3 +58,13 @@ generate_all_annotations: generate_train_annotations generate_valid_annotations
 clean_all_annotations:
 	@echo "Cleaning up generated annotations..."
 	rm -f $(TRAIN_DIR)/*_darknet.txt $(VALID_DIR)/*_darknet.txt $(DATA_DIR)/train.txt $(DATA_DIR)/valid.txt
+=======
+docker-build-darknet:
+	docker build -t darknet:latest .
+	
+docker-push-darknet:
+	docker push <your-registry>/darknet:latest
+
+watch:
+	watchmedo auto-restart --pattern="*.py" --recursive -- python controllers/sd_controller.py
+>>>>>>> 838eb66 (wip: added CI/CD related configs)
