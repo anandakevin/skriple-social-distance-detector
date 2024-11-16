@@ -1,0 +1,5 @@
+classes = 2
+train = ../drive/MyDrive/skripsi_kevin/Dataset/Crowdhuman/train_new.txt
+valid = ../drive/MyDrive/skripsi_kevin/Dataset/Crowdhuman/valid_new.txt
+names = ../drive/MyDrive/skripsi_kevin/Dataset/Crowdhuman/crowdhuman.names
+backup = ../drive/MyDrive/skripsi_kevin/models/trained/kevin1/
