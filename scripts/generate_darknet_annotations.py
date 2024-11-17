@@ -9,7 +9,7 @@ from tqdm import tqdm
 intPERSON = 0
 intHEAD = 1
 
-def generate_annotations(ii, return_dict, dataset_path, annotation_file):
+def generate_annotations(ii, return_dict, dataset_path, annotation_file, log_file):
     line = return_dict[ii]
     del return_dict[ii]
     
@@ -18,14 +18,19 @@ def generate_annotations(ii, return_dict, dataset_path, annotation_file):
     strID = dictLine['ID']
 
     # Build the file path based on the dataset and image ID
-    img_path = os.path.join(dataset_path, 'images', f'{strID}.jpg')
+    img_path = os.path.join(dataset_path, f'{strID}.jpg')
     img = cv2.imread(img_path, 1)
 
-    imgWidth = img.shape[1]
-    imgHeight = img.shape[0]
+    if img is None:
+        with open(log_file, "a") as log:
+            log.write(f"Skipped: {img_path}\n")
+        print(f"[WARNING] Could not read image: {img_path}. Logging and skipping.")
+        return
+
+    imgHeight, imgWidth = img.shape[:2]
 
     # Create .txt label file for Darknet format
-    output_txt_path = os.path.join(dataset_path, 'annotations', f'{strID}_darknet.txt')
+    output_txt_path = os.path.join(dataset_path, f'{strID}.txt')
     with open(output_txt_path, 'w+') as txtf:
 
         for label in dictLine['gtboxes']:
@@ -56,14 +61,10 @@ def generate_annotations(ii, return_dict, dataset_path, annotation_file):
             abspw = pw / imgWidth
             absph = ph / imgHeight  
 
-            abspx = 1 if abspx > 1 else abspx
-            abspy = 1 if abspy > 1 else abspy
-            abspw = 1 if abspw > 1 else abspw
-            absph = 1 if absph > 1 else absph
-            abspx = 0.000001 if abspx < 0 else abspx
-            abspy = 0.000001 if abspy < 0 else abspy
-            abspw = 0.000001 if abspw < 0 else abspw
-            absph = 0.000001 if absph < 0 else absph
+            abspx = max(0.000001, min(abspx, 1))
+            abspy = max(0.000001, min(abspy, 1))
+            abspw = max(0.000001, min(abspw, 1))
+            absph = max(0.000001, min(absph, 1))
 
             # Head BB
             chx = hx + hw / 2
@@ -73,14 +74,10 @@ def generate_annotations(ii, return_dict, dataset_path, annotation_file):
             abshw = hw / imgWidth
             abshh = hh / imgHeight  
 
-            abshx = 1 if abshx > 1 else abshx
-            abshy = 1 if abshy > 1 else abshy
-            abshw = 1 if abshw > 1 else abshw
-            abshh = 1 if abshh > 1 else abshh
-            abshx = 0.000001 if abshx < 0 else abshx
-            abshy = 0.000001 if abshy < 0 else abshy
-            abshw = 0.000001 if abshw < 0 else abshw
-            abshh = 0.000001 if abshh < 0 else abshh
+            abshx = max(0.000001, min(abshx, 1))
+            abshy = max(0.000001, min(abshy, 1))
+            abshw = max(0.000001, min(abshw, 1))
+            abshh = max(0.000001, min(abshh, 1))
 
             # Write normalized bounding boxes to file in Darknet format
             txtf.write(f'{intPERSON} {abspx:.4f} {abspy:.4f} {abspw:.4f} {absph:.4f}\n')
@@ -91,10 +88,12 @@ def main():
     parser = argparse.ArgumentParser(description='Generate Darknet annotations.')
     parser.add_argument('--dataset', type=str, required=True, help='Path to the dataset directory (train or valid).')
     parser.add_argument('--annotation_file', type=str, required=True, help='Path to the annotation file.')
+    parser.add_argument('--log_file', type=str, default='processing.log', help='Path to the log file.')
     args = parser.parse_args()
 
     dataset_path = os.path.join('data', args.dataset)  # Assuming 'data' is the project root
     annotation_file = args.annotation_file
+    log_file = args.log_file
 
     # Initialize the multiprocessing manager and shared dictionary
     manager = Manager()
@@ -107,7 +106,7 @@ def main():
 
         for ii, line in tqdm(enumerate(f)):
             return_dict[ii] = line  # Add annotation line to return_dict
-            p = Process(target=generate_annotations, args=(ii, return_dict, dataset_path, annotation_file))
+            p = Process(target=generate_annotations, args=(ii, return_dict, dataset_path, annotation_file, log_file))
             processes.append(p)
             p.start()
 
