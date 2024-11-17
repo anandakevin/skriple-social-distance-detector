@@ -33,3 +33,27 @@ darknet:
 
 darknet:
 	darknet detector map Dataset\Crowdhuman\yolo_crowdhuman.data cfg\yolov4-tiny-custom-crowdhuman-1.cfg trained\yolov4_tiny\Training_1_[30_03_2021]\yolov4-tiny-custom-crowdhuman-1_last.weights > yolov4-tiny-custom-crowdhuman-1_last_mAP50.txt
+
+# Variables
+DATA_DIR := data
+TRAIN_DIR := $(DATA_DIR)/train
+VALID_DIR := $(DATA_DIR)/valid
+ANNOTATION_TRAIN := $(DATA_DIR)/annotation_train.odgt
+ANNOTATION_VALID := $(DATA_DIR)/annotation_valid.odgt
+SCRIPTS_DIR := scripts
+PYTHON := python
+
+# Target to generate annotations for the training set
+generate_train_annotations:
+	$(PYTHON) $(SCRIPTS_DIR)/generate_darknet_annotations.py --dataset train --annotation_file $(ANNOTATION_TRAIN)
+
+# Target to generate annotations for the validation set
+generate_valid_annotations:
+	$(PYTHON) $(SCRIPTS_DIR)/generate_darknet_annotations.py --dataset valid --annotation_file $(ANNOTATION_VALID)
+
+# Default target to generate both training and validation annotations
+generate_all_annotations: generate_train_annotations generate_valid_annotations
+
+clean_all_annotations:
+	@echo "Cleaning up generated annotations..."
+	rm -f $(TRAIN_DIR)/*_darknet.txt $(VALID_DIR)/*_darknet.txt $(DATA_DIR)/train.txt $(DATA_DIR)/valid.txt

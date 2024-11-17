@@ -29,5 +29,7 @@ htmlcov/
 /Output
 /models
 /opencv-scripts
+/data/train
+/data/valid
 
 */*.desktop.ini

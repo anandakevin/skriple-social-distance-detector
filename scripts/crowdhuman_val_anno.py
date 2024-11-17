@@ -95,27 +95,26 @@ def generate_annotations(ii, return_dict):
                                                                  abshw,
                                                                  abshh))
         
+if __name__ == '__main__': 
+    with open('annotation_val.odgt') as f:
+        processes = []
+        max_iter = 500
 
-with open('annotation_val.odgt') as f:
-        
-    processes = []
-    max_iter = 500
+        for ii, line in tqdm(enumerate(f)): 
 
-    for ii, line in tqdm(enumerate(f)): 
-
-        return_dict[ii] = line
-        pcs = Process(target = generate_annotations, args = (ii, return_dict))
-        processes.append(pcs)
-        pcs.start()
-        
-        if ii % max_iter == 0:
+            return_dict[ii] = line
+            pcs = Process(target = generate_annotations, args = (ii, return_dict))
+            processes.append(pcs)
+            pcs.start()
             
-            for jj in range(len(processes)):    
-                processes[jj].join()  
+            if ii % max_iter == 0:
+                
+                for jj in range(len(processes)):    
+                    processes[jj].join()  
 
-            processes = []
-            
-    for jj in range(len(processes)):    
-        processes[jj].join()      
-        
-    processes = []    
+                processes = []
+                
+        for jj in range(len(processes)):    
+            processes[jj].join()      
+
+        processes = []   

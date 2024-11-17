@@ -95,9 +95,8 @@ def generate_annotations(ii, return_dict):
                                                                  abshw,
                                                                  abshh))
         
-if __name__ == '__main__':  
+if __name__ == '__main__': 
     with open('annotation_train.odgt') as f:
-            
         processes = []
         max_iter = 500
 
@@ -117,5 +116,5 @@ if __name__ == '__main__':
                 
         for jj in range(len(processes)):    
             processes[jj].join()      
-        
+
         processes = []   
