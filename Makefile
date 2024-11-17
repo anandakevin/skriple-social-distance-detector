@@ -67,4 +67,15 @@ docker-push-darknet:
 
 watch:
 	watchmedo auto-restart --pattern="*.py" --recursive -- python controllers/sd_controller.py
+<<<<<<< HEAD
 >>>>>>> 838eb66 (wip: added CI/CD related configs)
+=======
+
+.PHONY: kustomize-darknet-dev
+kustomize-darknet-dev:
+	kustomize build k8s/final/staging > k8s/final/staging/argocd/staging-jakarta.yaml
+
+.PHONY: kustomize-darknet-prod
+kustomize-darknet-prod:
+	kustomize build k8s/final/production > k8s/final/production/argocd/production-jakarta.yaml
+>>>>>>> 112d9a8 (wip: added CI/CD related configs (part 2))
