@@ -25,5 +25,14 @@ htmlcov/
 *,cover
 
 #folder for input & output files
-./Input
-./Output
+/Input
+/Output
+/models
+/opencv-scripts
+
+/data/train
+/data/valid
+/data/test
+/data/*.odgt
+
+*/*.desktop.ini
