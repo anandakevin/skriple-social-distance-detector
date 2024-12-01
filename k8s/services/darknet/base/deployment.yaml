@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: darknet-deployment
+  labels:
+    app: darknet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: darknet
+  template:
+    metadata:
+      labels:
+        app: darknet
+    spec:
+      containers:
+      - name: darknet
+        image: <your-registry>/darknet:latest
+        resources:
+          limits:
+            nvidia.com/gpu: 1
